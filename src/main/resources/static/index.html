@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, select { margin: 5px; }
+        .result { margin-top: 20px; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <h1>Simple Calculator</h1>
+    <form id="calculator-form">
+        <input type="number" id="num1" placeholder="Enter first number" required>
+        <input type="number" id="num2" placeholder="Enter second number" required>
+        <select id="operation">
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+            <option value="multiply">Multiply</option>
+            <option value="divide">Divide</option>
+            <option value="modulus">Modulus</option>
+            <option value="power">Power</option>
+            <option value="sqrt">Square Root</option>
+            <option value="factorial">Factorial</option>
+            <option value="average">Average</option>
+        </select>
+        <button type="submit">Calculate</button>
+    </form>
+    <div class="result" id="result"></div>
+
+    <script>
+        document.getElementById('calculator-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            const operation = document.getElementById('operation').value;
+            let url = `http://localhost:8080/api/calculator/${operation}?`;
+
+            if (operation === 'sqrt') {
+                url += `a=${num1}`;
+            } else if (operation === 'factorial') {
+                url += `n=${Math.floor(num1)}`; // Assuming integer input
+            } else if (operation === 'average') {
+                // For average, let's allow multiple numbers input
+                const numbers = [num1, num2];
+                url += `numbers=${numbers.join(',')}`;
+            } else {
+                url += `a=${num1}&b=${num2}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const result = await response.text();
+                document.getElementById('result').textContent = `Result: ${result}`;
+            } catch (error) {
+                document.getElementById('result').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
